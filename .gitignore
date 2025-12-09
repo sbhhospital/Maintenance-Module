@@ -1,22 +1,59 @@
+# Dependencies
 node_modules/
-.next/
-dist/
-out/
-build/
+/.pnp
+.pnp.js
+
+# Next.js
+/.next/
+/out/
+*.tsbuildinfo
+
+# Build artifacts
+/dist/
+/build/
 coverage/
 
 # Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
+yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# Environment
-.env*
+# Environment variables
+.env
+.env.local
+.env.*.local
 !.env.example
 
-# OS/IDE files
+# OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# IDE files
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Testing
+.coverage
+.nyc_output
+
+# Misc
+.cache/
+*.pem
+
