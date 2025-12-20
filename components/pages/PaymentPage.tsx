@@ -10,6 +10,7 @@ interface PaymentItem {
   machineName: string
   inspectedBy: string
   inspectionDate: string
+  tat: string
   remarks: string
   imageLink: string
   billNo: string
@@ -149,6 +150,7 @@ export default function PaymentPage() {
         const amount = cells[36]?.v || ""; // Column AK (index 36) - Amount
         const paymentDate = cells[37]?.v ? formatDate(cells[37]?.v) : ""; // Column AL (index 37) - Payment Date
         const billImageUrl = cells[38]?.v || ""; // Column AM (index 38) - Bill Image URL
+        const tat = cells[39]?.v || "" ; // Column AN (index-39)
 
         // Check if inspection is done (Column AE = "Done")
         if (indentNo && inspectionResult === "Done") {
@@ -160,6 +162,7 @@ export default function PaymentPage() {
               machineName,
               inspectedBy,
               inspectionDate,
+              tat,
               remarks,
               imageLink,
               billNo,
@@ -178,6 +181,7 @@ export default function PaymentPage() {
               machineName,
               inspectedBy,
               inspectionDate,
+              tat,
               remarks,
               imageLink,
               billNo,
@@ -396,6 +400,7 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Machine</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Inspected By</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Inspection Date</th>
+            <th className="px-6 py-3 text-left font-semibold text-slate-900">TAT</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Remarks</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Image</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Action</th>
@@ -408,6 +413,7 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
               <td className="px-6 py-4 text-slate-600">{item.machineName}</td>
               <td className="px-6 py-4 text-slate-600">{item.inspectedBy}</td>
               <td className="px-6 py-4 text-slate-600">{item.inspectionDate}</td>
+              <td className="px-6 py-4 text-slate-600">{item.tat} Days</td>
               <td className="px-6 py-4 text-slate-600">{item.remarks}</td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (
@@ -449,6 +455,7 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Bill No</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Amount</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Payment Date</th>
+            <th className="px-6 py-3 text-left font-semibold text-slate-900">TAT</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Bill Image</th>
           </tr>
         </thead>
@@ -460,6 +467,7 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
               <td className="px-6 py-4 text-slate-600">{item.billNo}</td>
               <td className="px-6 py-4 font-semibold text-slate-900">₹{item.amount}</td>
               <td className="px-6 py-4 text-slate-600">{item.paymentDate}</td>
+              <td className="px-6 py-4 text-slate-600">{item.tat} Days</td>
               <td className="px-6 py-4 text-sm">
                 {item.billImageUrl ? (
                   <a 
