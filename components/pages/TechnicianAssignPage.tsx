@@ -298,7 +298,7 @@ export default function TechnicianAssignPage() {
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Indent No</th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Machine</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Equipment</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Department</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Problem</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Priority</th>
@@ -368,7 +368,7 @@ export default function TechnicianAssignPage() {
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Indent No</th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Machine</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Equipment</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Department</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Problem</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Technician</th>

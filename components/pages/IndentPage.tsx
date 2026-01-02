@@ -294,7 +294,7 @@ const handleAddIndent = async (e: React.MouseEvent<HTMLButtonElement>) => {
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Machine Name *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Equipment Name *</label>
               <input
                 type="text"
                 value={formData.machineName}

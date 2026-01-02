@@ -56,7 +56,7 @@ export default function PaymentPage() {
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
       }
-      
+
       // Handle string date formats like "Date(2025,10,28)"
       if (typeof dateValue === 'string') {
         const dateMatch = dateValue.match(/Date\((\d{4}),(\d{1,2}),(\d{1,2})\)/);
@@ -66,12 +66,12 @@ export default function PaymentPage() {
           const day = parseInt(dateMatch[3]);
           return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
         }
-        
+
         // Handle dd/mm/yyyy format
         if (dateValue.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
           return dateValue;
         }
-        
+
         const date = new Date(dateValue);
         if (!isNaN(date.getTime())) {
           const day = String(date.getDate()).padStart(2, '0');
@@ -81,7 +81,7 @@ export default function PaymentPage() {
         }
         return dateValue;
       }
-      
+
       return "";
     } catch (error) {
       console.error("Error formatting date:", error);
@@ -143,14 +143,14 @@ export default function PaymentPage() {
         const inspectionDate = cells[29]?.v ? formatDate(cells[29]?.v) : ""; // Column AD (index 29)
         const inspectionResult = cells[30]?.v || ""; // Column AE (index 30)
         const remarks = cells[31]?.v || ""; // Column AF (index 31)
-        
+
         // NEW COLUMN MAPPINGS
         const actualValue = cells[33]?.v || ""; // Column AH (index 33) - Actual Value
         const billNo = cells[35]?.v || ""; // Column AJ (index 35) - Bill No
         const amount = cells[36]?.v || ""; // Column AK (index 36) - Amount
         const paymentDate = cells[37]?.v ? formatDate(cells[37]?.v) : ""; // Column AL (index 37) - Payment Date
         const billImageUrl = cells[38]?.v || ""; // Column AM (index 38) - Bill Image URL
-        const tat = cells[39]?.v || "" ; // Column AN (index-39)
+        const tat = cells[39]?.v || ""; // Column AN (index-39)
 
         // Check if inspection is done (Column AE = "Done")
         if (indentNo && inspectionResult === "Done") {
@@ -204,122 +204,122 @@ export default function PaymentPage() {
     }
   };
 
-const uploadBillImage = async (file: File): Promise<string | null> => {
-  try {
-    setUploadingImage(true);
-    
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        try {
-          const base64Data = reader.result as string;
-          
-          console.log('Uploading bill image to Drive...', {
-            fileName: file.name,
-            mimeType: file.type,
-            fileSize: file.size
-          });
+  const uploadBillImage = async (file: File): Promise<string | null> => {
+    try {
+      setUploadingImage(true);
 
-          // Create form data with URLSearchParams instead of FormData to avoid CORS issues
-          const params = new URLSearchParams();
-          params.append('action', 'uploadFile');
-          params.append('base64Data', base64Data.split(',')[1]); // Remove data URL prefix
-          params.append('fileName', `bill_${Date.now()}_${file.name}`);
-          params.append('mimeType', file.type);
-          params.append('folderId', DRIVE_FOLDER_ID);
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          try {
+            const base64Data = reader.result as string;
 
-          // Add timestamp to prevent caching
-          const timestamp = Date.now();
-          const urlWithCacheBust = `${APP_SCRIPT_URL}?t=${timestamp}`;
+            console.log('Uploading bill image to Drive...', {
+              fileName: file.name,
+              mimeType: file.type,
+              fileSize: file.size
+            });
 
-          const response = await fetch(urlWithCacheBust, {
-            method: "POST",
-            body: params,
-            mode: 'no-cors',
-          });
+            // Create form data with URLSearchParams instead of FormData to avoid CORS issues
+            const params = new URLSearchParams();
+            params.append('action', 'uploadFile');
+            params.append('base64Data', base64Data.split(',')[1]); // Remove data URL prefix
+            params.append('fileName', `bill_${Date.now()}_${file.name}`);
+            params.append('mimeType', file.type);
+            params.append('folderId', DRIVE_FOLDER_ID);
 
-          setUploadingImage(false);
-          
-          // With no-cors mode, we can't read the response, but the file IS being uploaded
-          // We'll return a placeholder that indicates success
-          // The actual file ID will be in the Google Drive folder with the timestamp in the filename
-          const placeholderUrl = `https://drive.google.com/uc?export=view&id=uploaded_${timestamp}`;
-          console.log('Image upload initiated (file being processed in background)');
-          resolve(placeholderUrl);
-          
-        } catch (error) {
-          console.error('Error uploading image:', error);
+            // Add timestamp to prevent caching
+            const timestamp = Date.now();
+            const urlWithCacheBust = `${APP_SCRIPT_URL}?t=${timestamp}`;
+
+            const response = await fetch(urlWithCacheBust, {
+              method: "POST",
+              body: params,
+              mode: 'no-cors',
+            });
+
+            setUploadingImage(false);
+
+            // With no-cors mode, we can't read the response, but the file IS being uploaded
+            // We'll return a placeholder that indicates success
+            // The actual file ID will be in the Google Drive folder with the timestamp in the filename
+            const placeholderUrl = `https://drive.google.com/uc?export=view&id=uploaded_${timestamp}`;
+            console.log('Image upload initiated (file being processed in background)');
+            resolve(placeholderUrl);
+
+          } catch (error) {
+            console.error('Error uploading image:', error);
+            setUploadingImage(false);
+            resolve(null);
+          }
+        };
+
+        reader.onerror = () => {
+          console.error('FileReader error');
           setUploadingImage(false);
           resolve(null);
-        }
-      };
-      
-      reader.onerror = () => {
-        console.error('FileReader error');
-        setUploadingImage(false);
-        resolve(null);
-      };
-      
-      reader.readAsDataURL(file);
-    });
-  } catch (error) {
-    console.error('Error in uploadBillImage:', error);
-    setUploadingImage(false);
-    return null;
-  }
-};
+        };
+
+        reader.readAsDataURL(file);
+      });
+    } catch (error) {
+      console.error('Error in uploadBillImage:', error);
+      setUploadingImage(false);
+      return null;
+    }
+  };
 
   const updatePaymentInSheet = async (paymentItem: PaymentItem, formData: any, billImageUrl: string = "") => {
-  try {
-    // Create array for all columns up to AM (39 columns total: A to AM)
-    const rowData = new Array(39).fill(""); // A through AM (39 columns)
-    
-    // Get current date and time in dd/mm/yyyy hh:mm:ss format
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    const actualValue = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
-    
-    // Store payment data in the appropriate columns
-    // Column AH (index 33): Actual Value (Current date in dd/mm/yyyy hh:mm:ss format)
-    rowData[33] = actualValue; // Column AH - Actual Value
-    
-    // Column AJ (index 35): Bill Number
-    rowData[35] = formData.billNo; // Column AJ - Bill No
-    
-    // Column AK (index 36): Amount
-    rowData[36] = formData.amount; // Column AK - Amount
-    
-    // Column AL (index 37): Payment Date (in dd/mm/yyyy format)
-    rowData[37] = formatDateForSheet(formData.paymentDate); // Column AL - Payment Date
-    
-    // Column AM (index 38): Bill Image URL
-    rowData[38] = billImageUrl || ""; // Column AM - Bill Image URL
+    try {
+      // Create array for all columns up to AM (39 columns total: A to AM)
+      const rowData = new Array(39).fill(""); // A through AM (39 columns)
 
-    const params = new URLSearchParams({
-      action: "update",
-      sheetName: SHEET_NAME,
-      rowIndex: paymentItem.rowIndex.toString(),
-      rowData: JSON.stringify(rowData),
-    });
+      // Get current date and time in dd/mm/yyyy hh:mm:ss format
+      const now = new Date();
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const actualValue = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 
-    const response = await fetch(APP_SCRIPT_URL, {
-      method: "POST",
-      body: params,
-      mode: "no-cors",
-    });
+      // Store payment data in the appropriate columns
+      // Column AH (index 33): Actual Value (Current date in dd/mm/yyyy hh:mm:ss format)
+      rowData[33] = actualValue; // Column AH - Actual Value
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return true;
-  } catch (error) {
-    console.error("Error updating payment:", error);
-    return false;
-  }
-};
+      // Column AJ (index 35): Bill Number
+      rowData[35] = formData.billNo; // Column AJ - Bill No
+
+      // Column AK (index 36): Amount
+      rowData[36] = formData.amount; // Column AK - Amount
+
+      // Column AL (index 37): Payment Date (in dd/mm/yyyy format)
+      rowData[37] = formatDateForSheet(formData.paymentDate); // Column AL - Payment Date
+
+      // Column AM (index 38): Bill Image URL
+      rowData[38] = billImageUrl || ""; // Column AM - Bill Image URL
+
+      const params = new URLSearchParams({
+        action: "update",
+        sheetName: SHEET_NAME,
+        rowIndex: paymentItem.rowIndex.toString(),
+        rowData: JSON.stringify(rowData),
+      });
+
+      const response = await fetch(APP_SCRIPT_URL, {
+        method: "POST",
+        body: params,
+        mode: "no-cors",
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return true;
+    } catch (error) {
+      console.error("Error updating payment:", error);
+      return false;
+    }
+  };
 
   useEffect(() => {
     fetchSheetData();
@@ -352,7 +352,7 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
   const handleConfirmPayment = async () => {
     if (selectedItem && formData.billNo && formData.amount) {
       let billImageUrl = formData.billImageUrl;
-      
+
       // Upload bill image if selected
       if (formData.billImage) {
         try {
@@ -362,29 +362,29 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
           // Continue without image if upload fails
         }
       }
-      
+
       const success = await updatePaymentInSheet(selectedItem, formData, billImageUrl);
-      
+
       if (success) {
         // Update local state
         const updatedItems = paymentItems.map((item) =>
           item.id === selectedItem.id
             ? {
-                ...item,
-                billNo: formData.billNo,
-                amount: formData.amount,
-                paymentDate: formData.paymentDate,
-                billImageUrl: billImageUrl,
-                status: "paid" as const,
-              }
+              ...item,
+              billNo: formData.billNo,
+              amount: formData.amount,
+              paymentDate: formData.paymentDate,
+              billImageUrl: billImageUrl,
+              status: "paid" as const,
+            }
             : item,
         );
         setPaymentItems(updatedItems);
       }
-      
+
       setShowModal(false);
       setSelectedItem(null);
-      
+
       setTimeout(() => {
         handleRefresh();
       }, 1500);
@@ -397,7 +397,7 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Indent No</th>
-            <th className="px-6 py-3 text-left font-semibold text-slate-900">Machine</th>
+            <th className="px-6 py-3 text-left font-semibold text-slate-900">Equipment</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Inspected By</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Inspection Date</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">TAT</th>
@@ -417,9 +417,9 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
               <td className="px-6 py-4 text-slate-600">{item.remarks}</td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (
-                  <a 
-                    href={item.imageLink} 
-                    target="_blank" 
+                  <a
+                    href={item.imageLink}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
@@ -451,7 +451,7 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Indent No</th>
-            <th className="px-6 py-3 text-left font-semibold text-slate-900">Machine</th>
+            <th className="px-6 py-3 text-left font-semibold text-slate-900">Equipment</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Bill No</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Amount</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Payment Date</th>
@@ -470,9 +470,9 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
               <td className="px-6 py-4 text-slate-600">{item.tat} Days</td>
               <td className="px-6 py-4 text-sm">
                 {item.billImageUrl ? (
-                  <a 
-                    href={item.billImageUrl} 
-                    target="_blank" 
+                  <a
+                    href={item.billImageUrl}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
@@ -518,21 +518,19 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
             <div className="flex border-b border-slate-200">
               <button
                 onClick={() => setActiveTab("pending")}
-                className={`flex-1 px-6 py-3 font-medium text-sm transition ${
-                  activeTab === "pending"
+                className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "pending"
                     ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
                     : "text-slate-600 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 Pending ({pendingItems.length})
               </button>
               <button
                 onClick={() => setActiveTab("history")}
-                className={`flex-1 px-6 py-3 font-medium text-sm transition ${
-                  activeTab === "history"
+                className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "history"
                     ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
                     : "text-slate-600 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 History ({historyItems.length})
               </button>
@@ -607,7 +605,7 @@ const uploadBillImage = async (file: File): Promise<string | null> => {
               />
               <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
               <p className="text-slate-600 text-sm">
-                {formData.billImage 
+                {formData.billImage
                   ? `Selected: ${formData.billImage.name}`
                   : "Click or drag bill image here"
                 }

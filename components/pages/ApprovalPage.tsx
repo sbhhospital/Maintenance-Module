@@ -275,7 +275,7 @@ export default function ApprovalPage() {
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Indent No</th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Machine</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Equipment</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Department</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Priority</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Expected Delivery</th>
@@ -354,7 +354,7 @@ export default function ApprovalPage() {
           <tr>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Status</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Indent No</th>
-            <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Machine</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Equipment</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Department</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Problem</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Expected Delivery</th>

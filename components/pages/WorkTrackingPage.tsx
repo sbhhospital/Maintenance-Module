@@ -277,7 +277,7 @@ export default function WorkTrackingPage() {
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Indent No</th>
-            <th className="px-6 py-3 text-left font-semibold text-slate-900">Machine</th>
+            <th className="px-6 py-3 text-left font-semibold text-slate-900">Equipment</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Technician</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Phone</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Work Notes</th>
@@ -331,7 +331,7 @@ export default function WorkTrackingPage() {
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Indent No</th>
-            <th className="px-6 py-3 text-left font-semibold text-slate-900">Machine</th>
+            <th className="px-6 py-3 text-left font-semibold text-slate-900">Equipment</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Technician</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Phone</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Status</th>
