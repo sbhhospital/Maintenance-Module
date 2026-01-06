@@ -57,45 +57,45 @@ export default function ApprovalPage() {
   const historyItems = items.filter((item) => item.status === "history");
 
   const formatDate = (dateValue: any) => {
-  try {
-    // Handle Google Sheets date format (Excel serial number)
-    if (typeof dateValue === 'number') {
-      // Excel/Google Sheets date serial number (days since Dec 30, 1899)
-      const date = new Date((dateValue - 25569) * 86400 * 1000);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // Fixed: getMonth() + 1
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
-    }
-    
-    // Handle string date formats like "Date(2025,10,28)"
-    if (typeof dateValue === 'string') {
-      // Check if it's in the format "Date(2025,10,28)"
-      const dateMatch = dateValue.match(/Date\((\d{4}),(\d{1,2}),(\d{1,2})\)/);
-      if (dateMatch) {
-        const year = parseInt(dateMatch[1]);
-        const month = parseInt(dateMatch[2]) + 1; // JavaScript months are 0-indexed, so add 1
-        const day = parseInt(dateMatch[3]);
-        return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
-      }
-      
-      // Try parsing as regular date string
-      const date = new Date(dateValue);
-      if (!isNaN(date.getTime())) {
+    try {
+      // Handle Google Sheets date format (Excel serial number)
+      if (typeof dateValue === 'number') {
+        // Excel/Google Sheets date serial number (days since Dec 30, 1899)
+        const date = new Date((dateValue - 25569) * 86400 * 1000);
         const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Fixed: getMonth() + 1
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
       }
-      return dateValue; // Return as-is if not a valid date
+
+      // Handle string date formats like "Date(2025,10,28)"
+      if (typeof dateValue === 'string') {
+        // Check if it's in the format "Date(2025,10,28)"
+        const dateMatch = dateValue.match(/Date\((\d{4}),(\d{1,2}),(\d{1,2})\)/);
+        if (dateMatch) {
+          const year = parseInt(dateMatch[1]);
+          const month = parseInt(dateMatch[2]) + 1; // JavaScript months are 0-indexed, so add 1
+          const day = parseInt(dateMatch[3]);
+          return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+        }
+
+        // Try parsing as regular date string
+        const date = new Date(dateValue);
+        if (!isNaN(date.getTime())) {
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = date.getFullYear();
+          return `${day}/${month}/${year}`;
+        }
+        return dateValue; // Return as-is if not a valid date
+      }
+
+      return "";
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return dateValue || "";
     }
-    
-    return "";
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return dateValue || "";
-  }
-};
+  };
 
   const fetchSheetData = async () => {
     try {
@@ -114,7 +114,7 @@ export default function ApprovalPage() {
       );
       const data = JSON.parse(jsonText);
 
-      const rows = data.table.rows;
+      const rows = data.table.rows.slice(1);
       const itemsArray: ApprovalItem[] = [];
 
       rows.forEach((row: any, index: number) => {
@@ -175,7 +175,7 @@ export default function ApprovalPage() {
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
-    
+
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
   };
 
@@ -183,10 +183,10 @@ export default function ApprovalPage() {
   const updateItemInSheet = async (item: ApprovalItem, status: "approved" | "rejected", remarks: string) => {
     try {
       const currentDateTime = formatDateTime();
-      
+
       // Create array for all columns (A-M at minimum)
       const rowData = new Array(14).fill(""); // A to N columns
-      
+
       // Set the values in correct columns
       rowData[9] = currentDateTime; // Column J (index 9) - Timestamp in dd/mm/yyyy hh:mm:ss format
       rowData[11] = status; // Column K (index 10) - Status
@@ -239,29 +239,29 @@ export default function ApprovalPage() {
   const handleConfirmAction = async () => {
     if (selectedItem) {
       const newStatus = modalAction === "approve" ? "approved" : "rejected";
-      
+
       // Update in Google Sheets
       const success = await updateItemInSheet(selectedItem, newStatus, remarkInput);
-      
+
       if (success) {
         // Update local state
         const updatedItems = items.map((item) =>
           item.id === selectedItem.id
             ? {
-                ...item,
-                status: "history" as const,
-                originalStatus: newStatus,
-                remarks: remarkInput,
-                columnJValue: formatDateTime(),
-              }
+              ...item,
+              status: "history" as const,
+              originalStatus: newStatus,
+              remarks: remarkInput,
+              columnJValue: formatDateTime(),
+            }
             : item
         );
         setItems(updatedItems);
       }
-      
+
       setShowModal(false);
       setSelectedItem(null);
-      
+
       // Refresh data after a short delay to confirm update
       setTimeout(() => {
         handleRefresh();
@@ -292,13 +292,12 @@ export default function ApprovalPage() {
               <td className="px-6 py-4 text-sm text-slate-600">{item.department}</td>
               <td className="px-6 py-4 text-sm">
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    item.priority === "High"
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${item.priority === "High"
                       ? "bg-red-100 text-red-700"
                       : item.priority === "Medium"
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-green-100 text-green-700"
-                  }`}
+                    }`}
                 >
                   {item.priority}
                 </span>
@@ -308,13 +307,13 @@ export default function ApprovalPage() {
               </td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (
-                  <a 
-                    href={item.imageLink} 
-                    target="_blank" 
+                  <a
+                    href={item.imageLink}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
-                    <Images size={20}/>
+                    <Images size={20} />
                   </a>
                 ) : (
                   <span className="text-slate-400 text-xs">No Image</span>
@@ -367,9 +366,8 @@ export default function ApprovalPage() {
             <tr key={item.id} className="hover:bg-slate-50 transition">
               <td className="px-6 py-4 text-sm">
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    item.originalStatus === "approved" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${item.originalStatus === "approved" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                    }`}
                 >
                   {item.originalStatus ? item.originalStatus.charAt(0).toUpperCase() + item.originalStatus.slice(1) : "Processed"}
                 </span>
@@ -383,13 +381,13 @@ export default function ApprovalPage() {
               </td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (
-                  <a 
-                    href={item.imageLink} 
-                    target="_blank" 
+                  <a
+                    href={item.imageLink}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
-                    <Images size={20}/>
+                    <Images size={20} />
                   </a>
                 ) : (
                   <span className="text-slate-400 text-xs">No Image</span>
@@ -434,21 +432,19 @@ export default function ApprovalPage() {
             <div className="flex border-b border-slate-200">
               <button
                 onClick={() => setActiveTab("pending")}
-                className={`flex-1 px-6 py-3 font-medium text-sm transition ${
-                  activeTab === "pending"
+                className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "pending"
                     ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
                     : "text-slate-600 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 Pending ({pendingItems.length})
               </button>
               <button
                 onClick={() => setActiveTab("history")}
-                className={`flex-1 px-6 py-3 font-medium text-sm transition ${
-                  activeTab === "history"
+                className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "history"
                     ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
                     : "text-slate-600 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 History ({historyItems.length})
               </button>
@@ -487,9 +483,9 @@ export default function ApprovalPage() {
             {selectedItem?.imageLink && (
               <p className="text-sm text-slate-600 mt-1">
                 Image:{" "}
-                <a 
-                  href={selectedItem.imageLink} 
-                  target="_blank" 
+                <a
+                  href={selectedItem.imageLink}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:text-blue-800 underline"
                 >
@@ -519,9 +515,8 @@ export default function ApprovalPage() {
             </button>
             <button
               onClick={handleConfirmAction}
-              className={`px-4 py-2 rounded-lg text-white font-medium transition relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-500 active:scale-95 ${
-                modalAction === "approve" ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"
-              }`}
+              className={`px-4 py-2 rounded-lg text-white font-medium transition relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-500 active:scale-95 ${modalAction === "approve" ? "bg-green-500 hover:bg-green-600" : "bg-red-500 hover:bg-red-600"
+                }`}
             >
               {modalAction === "approve" ? "Approve" : "Reject"}
             </button>

@@ -128,7 +128,7 @@ export default function PaymentPage() {
       );
       const data = JSON.parse(jsonText);
 
-      const rows = data.table.rows;
+      const rows = data.table.rows.slice(1);
       const paymentItemsArray: PaymentItem[] = [];
 
       rows.forEach((row: any, index: number) => {
@@ -356,7 +356,7 @@ export default function PaymentPage() {
       // Upload bill image if selected
       if (formData.billImage) {
         try {
-          billImageUrl = await uploadBillImage(formData.billImage);
+          billImageUrl = (await uploadBillImage(formData.billImage)) || "";
         } catch (error) {
           console.error("Failed to upload bill image:", error);
           // Continue without image if upload fails
@@ -519,8 +519,8 @@ export default function PaymentPage() {
               <button
                 onClick={() => setActiveTab("pending")}
                 className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "pending"
-                    ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
-                    : "text-slate-600 hover:text-slate-900"
+                  ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
+                  : "text-slate-600 hover:text-slate-900"
                   }`}
               >
                 Pending ({pendingItems.length})
@@ -528,8 +528,8 @@ export default function PaymentPage() {
               <button
                 onClick={() => setActiveTab("history")}
                 className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "history"
-                    ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
-                    : "text-slate-600 hover:text-slate-900"
+                  ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
+                  : "text-slate-600 hover:text-slate-900"
                   }`}
               >
                 History ({historyItems.length})

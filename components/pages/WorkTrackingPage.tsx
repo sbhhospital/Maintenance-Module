@@ -52,7 +52,7 @@ export default function WorkTrackingPage() {
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
       }
-      
+
       // Handle string date formats like "Date(2025,10,28)"
       if (typeof dateValue === 'string') {
         const dateMatch = dateValue.match(/Date\((\d{4}),(\d{1,2}),(\d{1,2})\)/);
@@ -62,7 +62,7 @@ export default function WorkTrackingPage() {
           const day = parseInt(dateMatch[3]);
           return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
         }
-        
+
         const date = new Date(dateValue);
         if (!isNaN(date.getTime())) {
           const day = String(date.getDate()).padStart(2, '0');
@@ -72,7 +72,7 @@ export default function WorkTrackingPage() {
         }
         return dateValue;
       }
-      
+
       return "";
     } catch (error) {
       console.error("Error formatting date:", error);
@@ -108,7 +108,7 @@ export default function WorkTrackingPage() {
       );
       const data = JSON.parse(jsonText);
 
-      const rows = data.table.rows;
+      const rows = data.table.rows.slice(1);
       const workItemsArray: WorkItem[] = [];
 
       rows.forEach((row: any, index: number) => {
@@ -124,16 +124,16 @@ export default function WorkTrackingPage() {
         const technicianName = cells[16]?.v || ""; // Column Q (index 16)
         const technicianPhone = cells[17]?.v || ""; // Column R (index 17)
         const workNotes = cells[19]?.v || ""; // Column T (index 19) - Work Notes
-        
+
         // Check if item is approved (status = "approved") in Column L (index 11)
         const approvalStatus = cells[11]?.v || "";
-        
+
         // Get completion status from Column X (index 23)
         const completionStatus = cells[23]?.v || "";
-        
+
         // Get additional notes from Column Y (index 24)
         const additionalNotes = cells[24]?.v || "";
-        
+
         // Check if item has technician assigned (Column Q not empty) AND is approved
         if (indentNo && approvalStatus === "approved" && technicianName) {
           // If technician is assigned but completion status is NOT "Completed" or "Terminate" - show in pending
@@ -188,17 +188,17 @@ export default function WorkTrackingPage() {
     try {
       // Create array for all columns (A-Z at minimum - 26 columns)
       const rowData = new Array(26).fill(""); // A through Z (26 columns)
-      
+
       // Store Actual Date in Column V (index 21) in dd/mm/yyyy hh:mm:ss format
       const actualDateTime = getFormattedDateTime();
       rowData[21] = actualDateTime;
-      
+
       // Store Completion Status in Column X (index 23)
       rowData[23] = formData.completionStatus;
-      
+
       // Store Additional Notes in Column Y (index 24)
       rowData[24] = formData.additionalNotes;
-      
+
       // Store Planned Date in Column Z (index 25) in dd/mm/yyyy hh:mm:ss format
       const plannedDateTime = getFormattedDateTime();
       rowData[25] = plannedDateTime;
@@ -245,26 +245,26 @@ export default function WorkTrackingPage() {
   const handleConfirmWork = async () => {
     if (selectedItem) {
       const success = await updateWorkInSheet(selectedItem, formData);
-      
+
       if (success) {
         // Update local state
         const updatedItems = workItems.map((item) =>
           item.id === selectedItem.id
             ? {
-                ...item,
-                additionalNotes: formData.additionalNotes,
-                completionStatus: formData.completionStatus,
-                // Set status to "completed" for both "Completed" and "Terminate"
-                status: (formData.completionStatus === "Completed" || formData.completionStatus === "Terminate") ? "completed" : ("pending" as const),
-              }
+              ...item,
+              additionalNotes: formData.additionalNotes,
+              completionStatus: formData.completionStatus,
+              // Set status to "completed" for both "Completed" and "Terminate"
+              status: (formData.completionStatus === "Completed" || formData.completionStatus === "Terminate") ? ("completed" as const) : ("pending" as const),
+            }
             : item,
         );
         setWorkItems(updatedItems);
       }
-      
+
       setShowModal(false);
       setSelectedItem(null);
-      
+
       setTimeout(() => {
         handleRefresh();
       }, 1000);
@@ -297,9 +297,9 @@ export default function WorkTrackingPage() {
               <td className="px-6 py-4 text-slate-600">{item.expectedDeliveryDate || "N/A"}</td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (
-                  <a 
-                    href={item.imageLink} 
-                    target="_blank" 
+                  <a
+                    href={item.imageLink}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
@@ -348,11 +348,10 @@ export default function WorkTrackingPage() {
               <td className="px-6 py-4 text-slate-600">{item.technicianName}</td>
               <td className="px-6 py-4 text-slate-600">{item.technicianPhone}</td>
               <td className="px-6 py-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  item.completionStatus === "Completed" 
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
-                }`}>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${item.completionStatus === "Completed"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+                  }`}>
                   {item.completionStatus}
                 </span>
               </td>
@@ -360,9 +359,9 @@ export default function WorkTrackingPage() {
               <td className="px-6 py-4 text-slate-600">{item.expectedDeliveryDate || "N/A"}</td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (
-                  <a 
-                    href={item.imageLink} 
-                    target="_blank" 
+                  <a
+                    href={item.imageLink}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
@@ -408,21 +407,19 @@ export default function WorkTrackingPage() {
             <div className="flex border-b border-slate-200">
               <button
                 onClick={() => setActiveTab("pending")}
-                className={`flex-1 px-6 py-3 font-medium text-sm transition ${
-                  activeTab === "pending"
-                    ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
+                className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "pending"
+                  ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
+                  : "text-slate-600 hover:text-slate-900"
+                  }`}
               >
                 In Progress ({pendingItems.length})
               </button>
               <button
                 onClick={() => setActiveTab("history")}
-                className={`flex-1 px-6 py-3 font-medium text-sm transition ${
-                  activeTab === "history"
-                    ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
+                className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "history"
+                  ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
+                  : "text-slate-600 hover:text-slate-900"
+                  }`}
               >
                 Completed/Terminate ({historyItems.length})
               </button>

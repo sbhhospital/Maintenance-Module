@@ -59,7 +59,7 @@ export default function TechnicianAssignPage() {
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
       }
-      
+
       // Handle string date formats like "Date(2025,10,28)"
       if (typeof dateValue === 'string') {
         const dateMatch = dateValue.match(/Date\((\d{4}),(\d{1,2}),(\d{1,2})\)/);
@@ -69,7 +69,7 @@ export default function TechnicianAssignPage() {
           const day = parseInt(dateMatch[3]);
           return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
         }
-        
+
         const date = new Date(dateValue);
         if (!isNaN(date.getTime())) {
           const day = String(date.getDate()).padStart(2, '0');
@@ -79,7 +79,7 @@ export default function TechnicianAssignPage() {
         }
         return dateValue;
       }
-      
+
       return "";
     } catch (error) {
       console.error("Error formatting date:", error);
@@ -115,7 +115,7 @@ export default function TechnicianAssignPage() {
       );
       const data = JSON.parse(jsonText);
 
-      const rows = data.table.rows;
+      const rows = data.table.rows.slice(1);
       const assignmentsArray: Assignment[] = [];
 
       rows.forEach((row: any, index: number) => {
@@ -200,23 +200,23 @@ export default function TechnicianAssignPage() {
     try {
       // Create array for all columns (A-U at minimum)
       const rowData = new Array(21).fill("");
-      
+
       // Store technician name in Column Q (index 16)
       rowData[16] = formData.technicianName;
-      
+
       // Store phone number in Column R (index 17)
       rowData[17] = formData.technicianPhone;
-      
+
       // Store assigned date in Column S (index 18)
       rowData[18] = formData.assignedDate;
-      
+
       // Store work notes/remarks in Column T (index 19)
       rowData[19] = formData.workNotes;
-      
+
       // Store planned date in Column U (index 20) in dd/mm/yyyy hh:mm:ss format
       const plannedDateTime = getFormattedDateTime();
       rowData[20] = plannedDateTime;
-      
+
       // Store actual date in Column O (index 14) in dd/mm/yyyy hh:mm:ss format
       const actualDateTime = getFormattedDateTime();
       rowData[14] = actualDateTime;
@@ -265,27 +265,27 @@ export default function TechnicianAssignPage() {
   const handleConfirmAssign = async () => {
     if (selectedAssignment) {
       const success = await updateAssignmentInSheet(selectedAssignment, formData);
-      
+
       if (success) {
         // Update local state
         const updatedAssignments = assignments.map((a) =>
           a.id === selectedAssignment.id
             ? {
-                ...a,
-                technicianName: formData.technicianName,
-                technicianPhone: formData.technicianPhone,
-                assignedDate: formData.assignedDate,
-                workNotes: formData.workNotes,
-                status: "assigned" as const,
-              }
+              ...a,
+              technicianName: formData.technicianName,
+              technicianPhone: formData.technicianPhone,
+              assignedDate: formData.assignedDate,
+              workNotes: formData.workNotes,
+              status: "assigned" as const,
+            }
             : a,
         );
         setAssignments(updatedAssignments);
       }
-      
+
       setShowModal(false);
       setSelectedAssignment(null);
-      
+
       setTimeout(() => {
         handleRefresh();
       }, 1000);
@@ -317,13 +317,12 @@ export default function TechnicianAssignPage() {
               <td className="px-6 py-4 text-sm text-slate-600">{assignment.problem}</td>
               <td className="px-6 py-4 text-sm">
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    assignment.priority === "High"
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${assignment.priority === "High"
                       ? "bg-red-100 text-red-700"
                       : assignment.priority === "Medium"
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-green-100 text-green-700"
-                  }`}
+                    }`}
                 >
                   {assignment.priority}
                 </span>
@@ -331,9 +330,9 @@ export default function TechnicianAssignPage() {
               <td className="px-6 py-4 text-sm text-slate-600">{assignment.expectedDeliveryDate || "N/A"}</td>
               <td className="px-6 py-4 text-sm">
                 {assignment.imageLink ? (
-                  <a 
-                    href={assignment.imageLink} 
-                    target="_blank" 
+                  <a
+                    href={assignment.imageLink}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
@@ -426,21 +425,19 @@ export default function TechnicianAssignPage() {
             <div className="flex border-b border-slate-200">
               <button
                 onClick={() => setActiveTab("pending")}
-                className={`flex-1 px-6 py-3 font-medium text-sm transition ${
-                  activeTab === "pending"
+                className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "pending"
                     ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
                     : "text-slate-600 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 Pending ({pendingAssignments.length})
               </button>
               <button
                 onClick={() => setActiveTab("history")}
-                className={`flex-1 px-6 py-3 font-medium text-sm transition ${
-                  activeTab === "history"
+                className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "history"
                     ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
                     : "text-slate-600 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 History ({historyAssignments.length})
               </button>

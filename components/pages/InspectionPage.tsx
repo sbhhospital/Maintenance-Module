@@ -54,7 +54,7 @@ export default function InspectionPage() {
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
       }
-      
+
       // Handle string date formats like "Date(2025,10,28)"
       if (typeof dateValue === 'string') {
         const dateMatch = dateValue.match(/Date\((\d{4}),(\d{1,2}),(\d{1,2})\)/);
@@ -64,7 +64,7 @@ export default function InspectionPage() {
           const day = parseInt(dateMatch[3]);
           return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
         }
-        
+
         const date = new Date(dateValue);
         if (!isNaN(date.getTime())) {
           const day = String(date.getDate()).padStart(2, '0');
@@ -74,7 +74,7 @@ export default function InspectionPage() {
         }
         return dateValue;
       }
-      
+
       return "";
     } catch (error) {
       console.error("Error formatting date:", error);
@@ -99,7 +99,7 @@ export default function InspectionPage() {
       );
       const data = JSON.parse(jsonText);
 
-      const rows = data.table.rows;
+      const rows = data.table.rows.slice(1);
       const inspectionItemsArray: InspectionItem[] = [];
 
       rows.forEach((row: any, index: number) => {
@@ -178,51 +178,51 @@ export default function InspectionPage() {
   };
 
   const updateInspectionInSheet = async (inspectionItem: InspectionItem, formData: any) => {
-  try {
-    // Create array for all columns up to AG (33 columns total)
-    const rowData = new Array(33).fill(""); // A through AG (33 columns)
-    
-    // Store inspection data in the appropriate columns
-    // Column AA (index 26): Actual Value (Current timestamp)
-    const now = new Date();
-    const actualValue = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-    rowData[26] = actualValue; // Column AA (index 26)
-    
-    // Column AC (index 28): Inspected By
-    rowData[28] = formData.inspectedBy; // Column AC
-    
-    // Column AD (index 29): Inspection Date (from form input)
-    rowData[29] = formData.inspectionDate; // Column AD
-    
-    // Column AE (index 30): Inspection Result
-    rowData[30] = formData.inspectionResult; // Column AE
-    
-    // Column AF (index 31): Remarks
-    rowData[31] = formData.remarks; // Column AF
-    
-    // Column AG (index 32): Planned Date (Current timestamp - same as Actual Value)
-    rowData[32] = actualValue; // Column AG
+    try {
+      // Create array for all columns up to AG (33 columns total)
+      const rowData = new Array(33).fill(""); // A through AG (33 columns)
 
-    const params = new URLSearchParams({
-      action: "update",
-      sheetName: SHEET_NAME,
-      rowIndex: inspectionItem.rowIndex.toString(),
-      rowData: JSON.stringify(rowData),
-    });
+      // Store inspection data in the appropriate columns
+      // Column AA (index 26): Actual Value (Current timestamp)
+      const now = new Date();
+      const actualValue = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+      rowData[26] = actualValue; // Column AA (index 26)
 
-    const response = await fetch(APP_SCRIPT_URL, {
-      method: "POST",
-      body: params,
-      mode: "no-cors",
-    });
+      // Column AC (index 28): Inspected By
+      rowData[28] = formData.inspectedBy; // Column AC
 
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return true;
-  } catch (error) {
-    console.error("Error updating inspection:", error);
-    return false;
-  }
-};
+      // Column AD (index 29): Inspection Date (from form input)
+      rowData[29] = formData.inspectionDate; // Column AD
+
+      // Column AE (index 30): Inspection Result
+      rowData[30] = formData.inspectionResult; // Column AE
+
+      // Column AF (index 31): Remarks
+      rowData[31] = formData.remarks; // Column AF
+
+      // Column AG (index 32): Planned Date (Current timestamp - same as Actual Value)
+      rowData[32] = actualValue; // Column AG
+
+      const params = new URLSearchParams({
+        action: "update",
+        sheetName: SHEET_NAME,
+        rowIndex: inspectionItem.rowIndex.toString(),
+        rowData: JSON.stringify(rowData),
+      });
+
+      const response = await fetch(APP_SCRIPT_URL, {
+        method: "POST",
+        body: params,
+        mode: "no-cors",
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return true;
+    } catch (error) {
+      console.error("Error updating inspection:", error);
+      return false;
+    }
+  };
 
   useEffect(() => {
     fetchSheetData();
@@ -234,40 +234,40 @@ export default function InspectionPage() {
   };
 
   const handleInspectClick = (item: InspectionItem) => {
-  setSelectedItem(item);
-  setFormData({
-    inspectedBy: "", // Always start with empty string for inspectedBy
-    inspectionDate: item.inspectionDate || new Date().toISOString().split("T")[0],
-    inspectionResult: item.inspectionResult || "Done",
-    remarks: item.remarks,
-  });
-  setShowModal(true);
-}
+    setSelectedItem(item);
+    setFormData({
+      inspectedBy: "", // Always start with empty string for inspectedBy
+      inspectionDate: item.inspectionDate || new Date().toISOString().split("T")[0],
+      inspectionResult: item.inspectionResult || "Done",
+      remarks: item.remarks,
+    });
+    setShowModal(true);
+  }
 
   const handleConfirmInspection = async () => {
     if (selectedItem) {
       const success = await updateInspectionInSheet(selectedItem, formData);
-      
+
       if (success) {
         // Update local state
         const updatedItems = inspectionItems.map((item) =>
           item.id === selectedItem.id
             ? {
-                ...item,
-                inspectedBy: formData.inspectedBy,
-                inspectionDate: formData.inspectionDate,
-                inspectionResult: formData.inspectionResult,
-                remarks: formData.remarks,
-                status: "inspected" as const,
-              }
+              ...item,
+              inspectedBy: formData.inspectedBy,
+              inspectionDate: formData.inspectionDate,
+              inspectionResult: formData.inspectionResult,
+              remarks: formData.remarks,
+              status: "inspected" as const,
+            }
             : item,
         );
         setInspectionItems(updatedItems);
       }
-      
+
       setShowModal(false);
       setSelectedItem(null);
-      
+
       setTimeout(() => {
         handleRefresh();
       }, 1000);
@@ -304,9 +304,9 @@ export default function InspectionPage() {
               <td className="px-6 py-4 text-slate-600">{item.expectedDelivery || "N/A"}</td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (
-                  <a 
-                    href={item.imageLink} 
-                    target="_blank" 
+                  <a
+                    href={item.imageLink}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
@@ -355,9 +355,8 @@ export default function InspectionPage() {
               <td className="px-6 py-4 text-slate-600">{item.inspectionDate}</td>
               <td className="px-6 py-4">
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    item.inspectionResult === "Done" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${item.inspectionResult === "Done" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                    }`}
                 >
                   {item.inspectionResult}
                 </span>
@@ -365,9 +364,9 @@ export default function InspectionPage() {
               <td className="px-6 py-4 text-slate-600">{item.remarks}</td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (
-                  <a 
-                    href={item.imageLink} 
-                    target="_blank" 
+                  <a
+                    href={item.imageLink}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
@@ -413,21 +412,19 @@ export default function InspectionPage() {
             <div className="flex border-b border-slate-200">
               <button
                 onClick={() => setActiveTab("pending")}
-                className={`flex-1 px-6 py-3 font-medium text-sm transition ${
-                  activeTab === "pending"
+                className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "pending"
                     ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
                     : "text-slate-600 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 Pending ({pendingItems.length})
               </button>
               <button
                 onClick={() => setActiveTab("history")}
-                className={`flex-1 px-6 py-3 font-medium text-sm transition ${
-                  activeTab === "history"
+                className={`flex-1 px-6 py-3 font-medium text-sm transition ${activeTab === "history"
                     ? "text-blue-600 border-b-2 border-blue-600 bg-slate-50"
                     : "text-slate-600 hover:text-slate-900"
-                }`}
+                  }`}
               >
                 History ({historyItems.length})
               </button>

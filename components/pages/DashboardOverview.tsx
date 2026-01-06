@@ -83,18 +83,18 @@ function monthKey(date: Date) {
 function parseDateString(dateStr: string | number): Date | null {
   try {
     if (!dateStr) return null
-    
+
     let str = String(dateStr)
-    
+
     // If it's already a timestamp number
     if (typeof dateStr === 'number') {
       const date = new Date(dateStr)
       return isNaN(date.getTime()) ? null : date
     }
-    
+
     // Try parsing DD/MM/YYYY HH:MM:SS format
     const match = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{1,2}):(\d{1,2})$/)
-    
+
     if (match) {
       const day = parseInt(match[1], 10)
       const month = parseInt(match[2], 10) - 1 // JavaScript months are 0-indexed
@@ -102,15 +102,15 @@ function parseDateString(dateStr: string | number): Date | null {
       const hour = parseInt(match[4], 10)
       const minute = parseInt(match[5], 10)
       const second = parseInt(match[6], 10)
-      
+
       const date = new Date(year, month, day, hour, minute, second)
       return isNaN(date.getTime()) ? null : date
     }
-    
+
     // Try other date formats as fallback
     const date = new Date(str)
     return isNaN(date.getTime()) ? null : date
-    
+
   } catch (error) {
     console.error("Error parsing date:", dateStr, error)
     return null
@@ -134,7 +134,7 @@ async function fetchSheetData(): Promise<DashboardData> {
     const data = JSON.parse(jsonText)
 
     // Process the rows (gviz format: data.table.rows)
-    const rows = (data.table && data.table.rows) || []
+    const rows = ((data.table && data.table.rows) || []).slice(1);
 
     // Calculate stats
     let totalIndents = 0
@@ -163,8 +163,11 @@ async function fetchSheetData(): Promise<DashboardData> {
       // Determine rejection flag from Column L (index 11)
       let isRejected = false
       let isApproved = false
-      if (cells[11] && cells[11].v) {
-        const status = String(cells[11].v).trim().toLowerCase()
+      const statusCell = cells[11];
+      const statusValue = statusCell ? statusCell.v : null;
+
+      if (statusValue) {
+        const status = String(statusValue).trim().toLowerCase()
         if (status === "approved") {
           approved++
           isApproved = true
@@ -174,8 +177,8 @@ async function fetchSheetData(): Promise<DashboardData> {
         } else {
           pendingApprovals++
         }
-      } else if (cells[11] && !cells[11].v) {
-        // Column exists but empty
+      } else {
+        // Null or empty value -> Pending
         pendingApprovals++
       }
 
@@ -211,10 +214,10 @@ async function fetchSheetData(): Promise<DashboardData> {
 
       if (dateValue) {
         const parsedDate = parseDateString(dateValue)
-        
+
         if (parsedDate && !isNaN(parsedDate.getTime())) {
           allDates.push(parsedDate)
-          
+
           const key = monthKey(parsedDate)
           if (!monthCounts[key]) {
             monthCounts[key] = { completed: 0, pending: 0 }
@@ -251,25 +254,25 @@ async function fetchSheetData(): Promise<DashboardData> {
 
     // Generate last 6 months dynamically
     let referenceDate = new Date()
-    
+
     // If we have dates in the sheet, use the latest date as reference
     if (allDates.length > 0) {
       const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())))
       referenceDate = maxDate
     }
-    
+
     // Create array for the last 6 months (including current month)
     const lineData = []
-    
+
     for (let i = 5; i >= 0; i--) {
       // Create date for month (i months ago)
       const date = new Date(referenceDate.getFullYear(), referenceDate.getMonth() - i, 1)
       const key = monthKey(date)
       const label = formatMonthLabel(date)
-      
+
       // Get counts for this month or default to 0
       const counts = monthCounts[key] || { completed: 0, pending: 0 }
-      
+
       lineData.push({
         name: label,
         completed: counts.completed,
@@ -333,32 +336,32 @@ export default function DashboardOverview() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard 
-          title="Total Indents" 
-          value={dashboardData.totalIndents} 
-          icon={TrendingUp} 
-          color="blue" 
+        <StatCard
+          title="Total Indents"
+          value={dashboardData.totalIndents}
+          icon={TrendingUp}
+          color="blue"
           loading={loading}
         />
-        <StatCard 
-          title="Pending Approvals" 
-          value={dashboardData.pendingApprovals} 
-          icon={AlertCircle} 
-          color="orange" 
+        <StatCard
+          title="Pending Approvals"
+          value={dashboardData.pendingApprovals}
+          icon={AlertCircle}
+          color="orange"
           loading={loading}
         />
-        <StatCard 
-          title="Approved" 
-          value={dashboardData.approved} 
-          icon={CheckCircle} 
-          color="green" 
+        <StatCard
+          title="Approved"
+          value={dashboardData.approved}
+          icon={CheckCircle}
+          color="green"
           loading={loading}
         />
-        <StatCard 
-          title="Completed" 
-          value={dashboardData.completed} 
-          icon={Clock} 
-          color="cyan" 
+        <StatCard
+          title="Completed"
+          value={dashboardData.completed}
+          icon={Clock}
+          color="cyan"
           loading={loading}
         />
       </div>
