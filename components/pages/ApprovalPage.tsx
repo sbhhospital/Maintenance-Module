@@ -17,6 +17,7 @@ interface ApprovalItem {
   rowIndex: number
   columnJValue?: string
   expectedDeliveryDate?: string
+  tat?: string
   imageLink?: string
 }
 
@@ -128,6 +129,7 @@ export default function ApprovalPage() {
         const problem = cells[4]?.v || "";
         const priority = cells[5]?.v || "Medium";
         const expectedDeliveryDate = cells[6]?.v ? formatDate(cells[6]?.v) : "";
+        const tat = cells[39]?.v || "";
         const imageLink = cells[7]?.v || "";
         const columnJValue = cells[9]?.v || ""; // Column J - approval timestamp
         const status = cells[11]?.v || ""; // Column K - status
@@ -152,6 +154,7 @@ export default function ApprovalPage() {
             rowIndex: actualRowIndex, // FIXED: Now using correct row number
             columnJValue,
             expectedDeliveryDate,
+            tat,
             imageLink,
           });
         }
@@ -357,6 +360,7 @@ export default function ApprovalPage() {
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Department</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Problem</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Expected Delivery</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">TAT</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Image</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Remarks</th>
           </tr>
@@ -378,6 +382,9 @@ export default function ApprovalPage() {
               <td className="px-6 py-4 text-sm text-slate-600">{item.problem}</td>
               <td className="px-6 py-4 text-sm text-slate-600">
                 {item.expectedDeliveryDate || "N/A"}
+              </td>
+              <td className="px-6 py-4 text-sm text-slate-600">
+                {item.tat || "-"}
               </td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (

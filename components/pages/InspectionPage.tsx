@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import {Image} from "lucide-react"
 import Modal from "../Modal"
 
 interface InspectionItem {
@@ -15,6 +16,7 @@ interface InspectionItem {
   inspectedBy: string
   inspectionDate: string
   inspectionResult: string
+  tat: string
   remarks: string
   status: "pending" | "inspected"
   rowIndex: number
@@ -36,6 +38,7 @@ export default function InspectionPage() {
     inspectedBy: "",
     inspectionDate: new Date().toISOString().split("T")[0],
     inspectionResult: "Done",
+    tat: "",
     remarks: "",
   })
 
@@ -122,6 +125,7 @@ export default function InspectionPage() {
         const inspectedBy = cells[28]?.v || ""; // Column AC (index 28) - New position
         const inspectionDate = cells[29]?.v ? formatDate(cells[29]?.v) : ""; // Column AD (index 29) - New position
         const inspectionResult = cells[30]?.v || ""; // Column AE (index 30) - New position
+        const tat = cells[41]?.v || ""; // Column AP (index 41) - New position
         const remarks = cells[31]?.v || ""; // Column AF (index 31) - New position
         const plannedDate = cells[32]?.v ? formatDate(cells[32]?.v) : ""; // Column AG (index 32) - New position
 
@@ -141,6 +145,7 @@ export default function InspectionPage() {
               inspectedBy,
               inspectionDate,
               inspectionResult,
+              tat,
               remarks,
               status: "pending",
               rowIndex: actualRowIndex,
@@ -160,6 +165,7 @@ export default function InspectionPage() {
               inspectedBy,
               inspectionDate,
               inspectionResult,
+              tat,
               remarks,
               status: "inspected",
               rowIndex: actualRowIndex,
@@ -239,6 +245,7 @@ export default function InspectionPage() {
       inspectedBy: "", // Always start with empty string for inspectedBy
       inspectionDate: item.inspectionDate || new Date().toISOString().split("T")[0],
       inspectionResult: item.inspectionResult || "Done",
+      tat: item.tat,
       remarks: item.remarks,
     });
     setShowModal(true);
@@ -310,7 +317,7 @@ export default function InspectionPage() {
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
-                    View Image
+                    <Image size={20}/>
                   </a>
                 ) : (
                   <span className="text-slate-400 text-xs">No Image</span>
@@ -342,6 +349,7 @@ export default function InspectionPage() {
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Inspected By</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Date</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Result</th>
+            <th className="px-6 py-3 text-left font-semibold text-slate-900">TAT</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Remarks</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Image</th>
           </tr>
@@ -361,6 +369,7 @@ export default function InspectionPage() {
                   {item.inspectionResult}
                 </span>
               </td>
+              <td className="px-6 py-4 text-slate-600">{item.tat}</td>
               <td className="px-6 py-4 text-slate-600">{item.remarks}</td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (
@@ -370,7 +379,7 @@ export default function InspectionPage() {
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
-                    View Image
+                    <Image size={20}/>
                   </a>
                 ) : (
                   <span className="text-slate-400 text-xs">No Image</span>

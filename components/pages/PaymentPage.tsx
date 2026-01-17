@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Upload } from "lucide-react"
+import { Upload, Image } from "lucide-react"
 import Modal from "../Modal"
 
 interface PaymentItem {
@@ -400,7 +400,6 @@ export default function PaymentPage() {
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Equipment</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Inspected By</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Inspection Date</th>
-            <th className="px-6 py-3 text-left font-semibold text-slate-900">TAT</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Remarks</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Image</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Action</th>
@@ -413,7 +412,6 @@ export default function PaymentPage() {
               <td className="px-6 py-4 text-slate-600">{item.machineName}</td>
               <td className="px-6 py-4 text-slate-600">{item.inspectedBy}</td>
               <td className="px-6 py-4 text-slate-600">{item.inspectionDate}</td>
-              <td className="px-6 py-4 text-slate-600">{item.tat} Days</td>
               <td className="px-6 py-4 text-slate-600">{item.remarks}</td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (
@@ -423,7 +421,7 @@ export default function PaymentPage() {
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
-                    View Image
+                    <Image size={20}/>
                   </a>
                 ) : (
                   <span className="text-slate-400 text-xs">No Image</span>
@@ -476,7 +474,7 @@ export default function PaymentPage() {
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
-                    View Bill
+                    <Image size={20} />
                   </a>
                 ) : (
                   <span className="text-slate-400 text-xs">No Bill Image</span>

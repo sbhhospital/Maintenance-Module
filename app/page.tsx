@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { Lock, Mail, Wrench } from "lucide-react"
-import Dashboard from "@/components/Dashboard"
+import { useRouter } from "next/navigation"
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -15,23 +15,25 @@ export default function Home() {
   const [loginError, setLoginError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     // Restore login state from localStorage on component mount
     const storedLoginState = localStorage.getItem("maintenance_login_state")
     if (storedLoginState) {
       try {
-        const { isLoggedIn: savedIsLoggedIn, userRole: savedUserRole, userName: savedUserName } = JSON.parse(storedLoginState)
-        setIsLoggedIn(savedIsLoggedIn)
-        setUserRole(savedUserRole)
-        setUserName(savedUserName)
+        const { isLoggedIn: savedIsLoggedIn } = JSON.parse(storedLoginState)
+        if (savedIsLoggedIn) {
+          router.push("/dashboard")
+          return
+        }
       } catch (error) {
         console.error("Failed to restore login state:", error)
         localStorage.removeItem("maintenance_login_state")
       }
     }
     setIsHydrated(true)
-  }, [])
+  }, [router])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,43 +49,45 @@ export default function Home() {
     try {
       // Fetch user data from Google Sheets
       const response = await fetch(`https://docs.google.com/spreadsheets/d/15qpPqAKBH-IwxVkzG1UC-Fc3rZLUUXIqPjEqp_MVin4/gviz/tq?tqx=out:json&sheet=Master`)
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch user data")
       }
 
       const text = await response.text()
       const json = JSON.parse(text.substring(47).slice(0, -2))
-      
+
       if (!json.table || !json.table.rows) {
         throw new Error("Invalid data format")
       }
 
       const rows = json.table.rows
-      
+
       // Find matching user
       const user = rows.find((row: any) => {
         const userData = row.c
-        return userData && 
-               userData[0] && userData[0].v === username && // Column A - username
-               userData[1] && userData[1].v === password    // Column B - password
+        return userData &&
+          userData[0] && userData[0].v === username && // Column A - username
+          userData[1] && userData[1].v === password    // Column B - password
       })
 
       if (user) {
         const userData = user.c
         const role = userData[3] ? userData[3].v : "user" // Column D - role
         const name = userData[2] ? userData[2].v : ""     // Column C - name
-        
+
         setUserRole(role)
         setUserName(name)
         setIsLoggedIn(true)
-        
+
         // Save login state to localStorage
         localStorage.setItem("maintenance_login_state", JSON.stringify({
           isLoggedIn: true,
           userRole: role,
           userName: name
         }))
+
+        router.push("/dashboard")
       } else {
         setLoginError("Invalid username or password")
       }
@@ -95,24 +99,11 @@ export default function Home() {
     }
   }
 
-  const handleLogout = () => {
-    setIsLoggedIn(false)
-    setUserRole("")
-    setUsername("")
-    setPassword("")
-    setUserName("")
-    
-    // Clear login state from localStorage
-    localStorage.removeItem("maintenance_login_state")
-  }
-
   if (!isHydrated) {
     return null
   }
 
-  if (isLoggedIn) {
-    return <Dashboard userRole={userRole} userName={userName} onLogout={handleLogout} />
-  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-100 to-cyan-100 flex items-center justify-center px-4 py-8">

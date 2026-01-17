@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import {Image} from "lucide-react"
 import Modal from "../Modal"
 
 interface Assignment {
@@ -17,6 +18,7 @@ interface Assignment {
   rowIndex: number
   technicianName: string
   technicianPhone: string
+  tat: string
   assignedDate: string
   workNotes: string
 }
@@ -42,6 +44,7 @@ export default function TechnicianAssignPage() {
   const [formData, setFormData] = useState({
     technicianName: "",
     technicianPhone: "",
+    tat: "",
     assignedDate: new Date().toISOString().split("T")[0],
     workNotes: "",
   })
@@ -138,6 +141,7 @@ export default function TechnicianAssignPage() {
         const workNotes = cells[19]?.v || ""; // Column T - work notes
         const plannedDate = cells[20]?.v || ""; // Column U - planned date
         const actualDate = cells[14]?.v || ""; // Column O - actual date
+        const tat = cells[40]?.v || ""; // Column AO - tat
 
         // Show in Pending tab if:
         // 1. Has indent number
@@ -158,6 +162,7 @@ export default function TechnicianAssignPage() {
             rowIndex: actualRowIndex,
             technicianName: "",
             technicianPhone: "",
+            tat: "",
             assignedDate: "",
             workNotes: "",
           });
@@ -181,6 +186,7 @@ export default function TechnicianAssignPage() {
             rowIndex: actualRowIndex,
             technicianName,
             technicianPhone,
+            tat,
             assignedDate,
             workNotes,
           });
@@ -256,6 +262,7 @@ export default function TechnicianAssignPage() {
     setFormData({
       technicianName: "",
       technicianPhone: "",
+      tat: "",
       assignedDate: new Date().toISOString().split("T")[0],
       workNotes: "",
     });
@@ -274,6 +281,7 @@ export default function TechnicianAssignPage() {
               ...a,
               technicianName: formData.technicianName,
               technicianPhone: formData.technicianPhone,
+              tat: formData.tat,
               assignedDate: formData.assignedDate,
               workNotes: formData.workNotes,
               status: "assigned" as const,
@@ -336,7 +344,7 @@ export default function TechnicianAssignPage() {
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
-                    View Image
+                    <Image size={20}/>
                   </a>
                 ) : (
                   <span className="text-slate-400 text-xs">No Image</span>
@@ -372,6 +380,7 @@ export default function TechnicianAssignPage() {
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Problem</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Technician</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Phone</th>
+            <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">TAT</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Assigned Date</th>
             <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Work Notes</th>
           </tr>
@@ -385,6 +394,7 @@ export default function TechnicianAssignPage() {
               <td className="px-6 py-4 text-sm text-slate-600">{assignment.problem}</td>
               <td className="px-6 py-4 text-sm text-slate-600">{assignment.technicianName}</td>
               <td className="px-6 py-4 text-sm text-slate-600">{assignment.technicianPhone}</td>
+              <td className="px-6 py-4 text-sm text-slate-600">{assignment.tat}</td>
               <td className="px-6 py-4 text-sm text-slate-600">{assignment.assignedDate}</td>
               <td className="px-6 py-4 text-sm text-slate-600">{assignment.workNotes}</td>
             </tr>
@@ -492,10 +502,6 @@ export default function TechnicianAssignPage() {
               rows={3}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             />
-          </div>
-
-          <div className="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
-            <p>Note: Planned and Actual date/time will be automatically saved when you assign the technician.</p>
           </div>
 
           <div className="flex gap-3 justify-end pt-4">

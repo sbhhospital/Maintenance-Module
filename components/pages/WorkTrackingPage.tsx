@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import {Image} from "lucide-react"
 import Modal from "../Modal"
 
 interface WorkItem {
@@ -11,6 +12,7 @@ interface WorkItem {
   technicianName: string
   technicianPhone: string
   workNotes: string
+  tat: string
   expectedDeliveryDate: string
   imageLink: string
   additionalNotes: string
@@ -124,6 +126,7 @@ export default function WorkTrackingPage() {
         const technicianName = cells[16]?.v || ""; // Column Q (index 16)
         const technicianPhone = cells[17]?.v || ""; // Column R (index 17)
         const workNotes = cells[19]?.v || ""; // Column T (index 19) - Work Notes
+        const tat = cells[41]?.v || ""; // Column AP (index 41) - TAT
 
         // Check if item is approved (status = "approved") in Column L (index 11)
         const approvalStatus = cells[11]?.v || "";
@@ -146,6 +149,7 @@ export default function WorkTrackingPage() {
               technicianName,
               technicianPhone,
               workNotes,
+              tat,
               expectedDeliveryDate,
               imageLink,
               additionalNotes,
@@ -164,6 +168,7 @@ export default function WorkTrackingPage() {
               technicianName,
               technicianPhone,
               workNotes,
+              tat,
               expectedDeliveryDate,
               imageLink,
               additionalNotes,
@@ -303,7 +308,7 @@ export default function WorkTrackingPage() {
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
-                    View Image
+                    <Image size={24}/>
                   </a>
                 ) : (
                   <span className="text-slate-400 text-xs">No Image</span>
@@ -336,6 +341,7 @@ export default function WorkTrackingPage() {
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Phone</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Status</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Work Notes</th>
+            <th className="px-6 py-3 text-left font-semibold text-slate-900">TAT</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Expected Delivery</th>
             <th className="px-6 py-3 text-left font-semibold text-slate-900">Image</th>
           </tr>
@@ -356,6 +362,7 @@ export default function WorkTrackingPage() {
                 </span>
               </td>
               <td className="px-6 py-4 text-slate-600">{item.workNotes}</td>
+              <td className="px-6 py-4 text-slate-600">{item.tat}</td>
               <td className="px-6 py-4 text-slate-600">{item.expectedDeliveryDate || "N/A"}</td>
               <td className="px-6 py-4 text-sm">
                 {item.imageLink ? (
@@ -365,7 +372,7 @@ export default function WorkTrackingPage() {
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 underline text-xs"
                   >
-                    View Image
+                    <Image size={24}/>
                   </a>
                 ) : (
                   <span className="text-slate-400 text-xs">No Image</span>
@@ -472,10 +479,6 @@ export default function WorkTrackingPage() {
               rows={3}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
             />
-          </div>
-
-          <div className="text-sm text-slate-500 bg-slate-50 p-3 rounded-lg">
-            <p>Note: Actual date/time and Planned date/time will be automatically saved in dd/mm/yyyy hh:mm:ss format.</p>
           </div>
 
           <div className="flex gap-3 justify-end pt-4">
